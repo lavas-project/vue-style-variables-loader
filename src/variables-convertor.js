@@ -7,8 +7,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import Promise from 'bluebird';
-import Less2StylusTrasformer from './transformer/less-stylus';
+import Less2StylusTrasformer from './compiler/less-stylus';
 
 const readFile = Promise.promisify(fs.readFile);
 const STYLE_TAG_REG = /\<style.*?lang\s*=\s*["|'](.*)?["|'].*?\>([\S\s]*?)\<\/style\>/g;

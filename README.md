@@ -1,6 +1,6 @@
 # vue-style-variables-loader
 
-这个基于 webpack 的插件试图解决使用 Vue 开发中的两个问题：
+这个基于 webpack 的 loader 试图解决使用 Vue 开发中的两个问题：
 1. 在 Vue 单文件中自动引入变量文件
 2. 选用了一个 UI 框架并使用了框架提供的主题解决方案，在组件中想使用这些主题变量，但又不想使用框架指定的预处理器
 
@@ -107,7 +107,7 @@ $theme := {
 
 安装
 ```bash
-npm install theme-variables-loader --save-dev
+npm install vue-style-variables-loader --save-dev
 ```
 
 在 webpack 中配置规则，处理项目中每一个`.vue`文件，要注意配置`include/exclude`规则，使 loader 只作用于开发者项目内的文件，不包含第三方文件。
@@ -120,7 +120,7 @@ npm install theme-variables-loader --save-dev
             options: vueLoaderConfig
         },
         {
-            loader: 'theme-variables-loader',
+            loader: 'vue-style-variables-loader',
             options: {
                 injectInVueFile: true
             }

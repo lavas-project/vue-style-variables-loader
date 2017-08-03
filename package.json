@@ -45,7 +45,7 @@
     "concurrency": 5,
     "failFast": true,
     "files": [
-      "test/*.test.js"
+      "test/unit/*.test.js"
     ],
     "require": [
       "babel-register"
