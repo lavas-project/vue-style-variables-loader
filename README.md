@@ -146,3 +146,7 @@ npm install vue-style-variables-loader --save-dev
 * `variablesFiles` 变量文件路径，Array 类型
 * `imports` import 语句，Array 类型
 
+## 参考资料
+
+[the-super-tiny-compiler](https://github.com/thejameskyle/the-super-tiny-compiler/blob/master/the-super-tiny-compiler.js)
+
