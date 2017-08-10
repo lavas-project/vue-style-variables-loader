@@ -9,6 +9,7 @@
 
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
+import Promise from 'bluebird';
 import VariablesConvertor from './variables-convertor';
 
 // loader options schema
@@ -18,7 +19,7 @@ const VALIDATE_OPTIONS_SCHEMA = {
         variablesFiles: {
             type: 'array'
         },
-        imports: {
+        importStatements: {
             type: 'array'
         }
     },
@@ -27,23 +28,24 @@ const VALIDATE_OPTIONS_SCHEMA = {
 
 const convertor = new VariablesConvertor();
 
-export default function (source) { 
-    const options = loaderUtils.getOptions(this);
-    const {variablesFiles, imports} = options;
-    
-    // validate options according to schema
-    validateOptions(VALIDATE_OPTIONS_SCHEMA, options, 'vue-style-variables-loader');
+export default async function (source) {
 
     // use cache if possible
     this.cacheable();
 
+    const options = loaderUtils.getOptions(this);
+    const {variablesFiles, importStatements} = options;
+    
+    // validate options according to schema
+    validateOptions(VALIDATE_OPTIONS_SCHEMA, options, 'vue-style-variables-loader');    
+
     // use current hash of webpack compilation
-    convertor.cacheVersion = this._compilation.hash;
+    // convertor.cacheVersion = this._compilation.hash;
 
-    variablesFiles.forEach(file => {
-        convertor.read(file);
+    await Promise.all(variablesFiles.map(async (file) => {
+        await convertor.read(file);
         this.addDependency(file);
-    });
+    }));
 
-    return convertor.convert(source, imports);
+    return convertor.convert(source, importStatements);
 };

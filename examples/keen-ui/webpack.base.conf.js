@@ -41,12 +41,8 @@ module.exports = {
                     {
                         loader: 'vue-style-variables-loader',
                         options: {
-                            variablesFiles: [
-                                resolve('./src/styles/variables.styl')
-                            ],
-                            importStatements: [
-                                '@import "~@/styles/other-variables.less";'
-                            ]
+                            variablesFiles: [resolve('./src/styles/variables.styl')],
+                            imports: []
                         }
                     }
                 ],

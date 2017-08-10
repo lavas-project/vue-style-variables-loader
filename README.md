@@ -92,16 +92,38 @@ less-loader 中并没有找到解决方法，似乎只能每次手动引入了�
 
 然后，使用 loader 处理每一个`.vue`文件。该 loader 接受之前的变量文件作为输入，在每个`.vue`文件的每个`<style>`块中，根据当前`<style>`块指定的预处理器语言，将包含的所有变量进行转换并注入。这样开发者就可以直接使用自己熟悉的预处理器语法开发了。
 
-并不需要做类似[stylus，less，sass之间全部语法的互相转换](http://csspre.com/convert/)。只需要变量声明这部分。
-
-*WIP* 但也并不能使用正则简单替换，原因是 stylus 中有 hash 类型的变量声明：
+并不需要做类似[stylus，less，sass之间全部语法的互相转换](http://csspre.com/convert/)。只需要转换变量声明语句。例如我们选用了 vuetify，会使用 stylus 编写一个文件`theme.styl`，里面包含了 stylus hash 类型的主题变量：
 ``` stylus
+// theme.styl
+
 $theme := {
-    primary: 'white';
+    primary: white
+    secondary: #fff
 }
 ```
 
-所以只能写一个简单的 compiler 做一些词法语法分析的工作。
+经过 loader 对`theme.styl`文件内容的解析，
+在开发者的组件中，不需要添加任何额外语句，就可以直接使用 less 的语法访问这些变量：
+``` vue
+// Component.vue
+
+<style lang="less">
+.selector {
+    background: @theme-primary;
+    color: @theme-secondary;
+}
+</style>
+
+<style lang="sass">
+.selector
+    background: $theme-primary
+    color: $theme-secondary
+</style>
+```
+
+> 要注意 less 和 sass 中变量名称中不能包含`.`，所以我使用了`-`。所以需要通过`@theme-primary`而非`@theme.primary`这样的形式访问 hash 变量。
+
+最后，对于问题一，由于在 less，stylus 和 sass 中，都支持使用`@import "foo.scss";`这样的语句引入文件。对于不需要不同预处理器间的语法转换，只想自动批量引入多个变量文件的场景，loader 不会对这些文件的内容进行解析，只会简单的把这些`@import`语句插入`<style>`块中。
 
 ## 使用方法
 
@@ -122,7 +144,12 @@ npm install vue-style-variables-loader --save-dev
         {
             loader: 'vue-style-variables-loader',
             options: {
-                injectInVueFile: true
+                variablesFiles: [
+                    resolve('./src/styles/theme-variables.styl')
+                ],
+                importStatements: [
+                    '@import "~@/styles/other-variables.less";'
+                ]
             }
         }
     ],
@@ -142,9 +169,13 @@ npm install vue-style-variables-loader --save-dev
 
 ## 参数说明
 
-暂定两个参数：
-* `variablesFiles` 变量文件路径，Array 类型
-* `imports` import 语句，Array 类型
+两个参数：
+* `variablesFiles` 变量文件路径，Array 类型。指定主题变量文件。
+* `importStatements` import 语句，Array 类型。需要插入`.vue`文件`<style>`块头部的`@import`语句。在这里可以引入其他项目中使用的变量文件，要注意 loader 不会对这些文件做任何解析工作，只是简单的添加而已。
+
+使用`importStatements`有两点需要注意：
+1. 由于 css-loader 中认为`@import`路径是相对当前路径，所以需要加上`~`前缀使 webpack alias 生效。例如上面使用示例中：`'@import "~@/styles/other-variables.less";'`。[相关ISSUE](https://github.com/webpack-contrib/css-loader/issues/12)。
+2. 需要加上预处理器后缀名，原因是 loader 需要知道`@import`语句中文件的后缀，才能正确插入对应的`<style>`块中。例如`'@import "~@/styles/other-variables.less";'`就不会插入`<style lang="styl">`中。
 
 ## 参考资料
 

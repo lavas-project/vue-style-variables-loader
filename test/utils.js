@@ -9,6 +9,8 @@ const MFS = require('memory-fs');
 const Promise = require('bluebird');
 const webpack = require('webpack');
 
+const inspect = require('util').inspect;
+
 const outputFileSystem = new MFS();
 
 exports.runWebpackCompilerMemoryFs = function runWebpackCompiler(config) {

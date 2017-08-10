@@ -8,7 +8,7 @@
 import {createHash} from 'crypto';
 
 const ASSIGNMENT_OPERATOR = {
-    stylus: '=',
+    stylus: ':=',
     less: ':',
     sass: ':'
 };
@@ -22,6 +22,11 @@ const END_PUNCTUATION = {
     less: ';',
     sass: ';'
 };
+const NAMESPACE_HYPHEN = {
+    stylus: '.',
+    less: '-',
+    sass: '-'
+};
 
 const OPERATOR_REG = {
     stylus: /^(\:?=|\:|,|[-+*\/%]=?)[ \t]*/,
@@ -29,7 +34,7 @@ const OPERATOR_REG = {
     sass: /^(=|\:|,|[-+*\/%]=?)[ \t]*/
 };
 const WHITESPACE_REG = /^\s/;
-const INDENT_REG = /^[ \t]*/;
+const INDENT_REG = /^([ \t])*/;
 const NEWLINE_REG = {
     stylus: /^\n/,
     less: /^(;\n|;|\n)/,
@@ -61,7 +66,9 @@ class Node {
 
 class Compiler {
     constructor() {
-        this.cache = {};
+        this.tokenCache = {};
+        this.codeCache = {};
+        this.indentation = '    ';
     }
 
     /**
@@ -113,6 +120,7 @@ class Compiler {
             if (result && result[0]) {
                 // tokens.push(new Token('INDENT'));
                 input = input.substring(result[0].length);
+                // this.indentation = result[1];
                 continue;
             }
 
@@ -211,26 +219,26 @@ class Compiler {
           Token { type: 'HASH_END', value: undefined },
           Token { type: 'NEWLINE', value: undefined } ] 
 
-        we get such an AST
-        | [ Node {
-        |   type: 'DefineExpression',
-        |   value:
-        |     [ Node {
-        |         type: 'DefineExpression',
-        |         value:
-        |          Node {
-        |            type: 'ExpressionList',
-        |            value: [ Node { type: 'String', value: '#fff' } ] },
-        |         name: 'primary' },
-        |       Node {
-        |         type: 'DefineExpression',
-        |         value:
-        |          Node {
-        |            type: 'ExpressionList',
-        |            value: [ Node { type: 'String', value: 'white' } ] },
-        |         name: 'secondary' } ],
-        |    name: 'base-color',
-        |    isHash: true } ]
+        we get such an AST:
+        [ Node {
+           type: 'DefineExpression',
+           value:
+             [ Node {
+                 type: 'DefineExpression',
+                 value:
+                  Node {
+                    type: 'ExpressionList',
+                    value: [ Node { type: 'String', value: '#fff' } ] },
+                 name: 'primary' },
+               Node {
+                 type: 'DefineExpression',
+                 value:
+                  Node {
+                    type: 'ExpressionList',
+                    value: [ Node { type: 'String', value: 'white' } ] },
+                 name: 'secondary' } ],
+            name: 'base-color',
+            isHash: true } ]
      *
      * @param {Array} tokens result after tokenizing
      * @param {Set} usedVariables
@@ -240,7 +248,7 @@ class Compiler {
         // the final ast
         let ast = [];
         // meet variable on the left of an expression
-        let leftVariableFlag = false;
+        let leftVariableFlag = true;
         // are we processing stylus hash now?
         let hashFlag = false;
         // save all the tokens in hash, parse them later
@@ -272,6 +280,7 @@ class Compiler {
             }
             else if (token.type === 'HASH_START') {
                 hashFlag = true;
+                // mark current node as hash
                 currentNode.isHash = true;
             }
             else if (token.type === 'HASH_END') {
@@ -312,32 +321,62 @@ class Compiler {
         return ast;
     }
 
-    generateCode(ast, options = {
-        preprocessor: 'stylus',
-        omitPrefix: false
+    generateCode(ast, {
+        preprocessor = 'stylus',
+        stylusHash = false,
+        indent = 0,
+        namespace = ''
     }) {
-        const {preprocessor, omitPrefix} = options;
         if (Array.isArray(ast)) {
-            return ast.map(a => this.generateCode(a, {preprocessor})).join('\n');
+            return ast.map(subAst => 
+                this.generateCode(subAst, {
+                    preprocessor,
+                    stylusHash,
+                    indent,
+                    namespace
+                })).join('\n');
         }
 
         if (ast.type === 'DefineExpression') {
             // handle stylus hash
             if (ast.isHash) {
-                return `${VARIABLE_PREFIX[preprocessor]}${ast.name} ${ASSIGNMENT_OPERATOR[preprocessor]} {
-                    ${this.generateCode(ast.value, {preprocessor, omitPrefix: true})}
-                }`;
+                if (preprocessor === 'stylus') {
+                    return `${VARIABLE_PREFIX[preprocessor]}${ast.name} ${ASSIGNMENT_OPERATOR[preprocessor]} {\n`
+                        + this.generateCode(ast.value, {
+                            preprocessor,
+                            stylusHash: true,
+                            indent: indent + 1
+                        })
+                        + '\n}';
+                }
+                // in less & sass, we need to convert stylus hash into namespace
+                // eg. in less @base-color.primary
+                return this.generateCode(ast.value, {
+                    preprocessor,
+                    indent,
+                    namespace: ast.name
+                });
             }
             else {
-                return `${VARIABLE_PREFIX[preprocessor]}${ast.name} ${ASSIGNMENT_OPERATOR[preprocessor]} `
-                    + this.generateCode(ast.value, {preprocessor}) + `${END_PUNCTUATION[preprocessor]}`;
+                let prefix = VARIABLE_PREFIX[preprocessor];
+                let assignmentOp = ASSIGNMENT_OPERATOR[preprocessor];
+                let indentBefore = [...Array(indent)].reduce((prev, cur) => prev + this.indentation, '');
+                if (stylusHash) {
+                    prefix = '';
+                    assignmentOp = ':';
+                }
+                namespace = namespace ? `${namespace}${NAMESPACE_HYPHEN[preprocessor]}` : '';
+                return `${indentBefore}${prefix}${namespace}${ast.name} ${assignmentOp} `
+                    + this.generateCode(ast.value, {preprocessor})
+                    + `${END_PUNCTUATION[preprocessor]}`;
             }
         }
         else if (ast.type === 'ExpressionList') {
             return ast.value.reduce((prev, currentNode) => {
                 let {type, value} = currentNode;
                 if (type === 'Variable') {
-                    value = omitPrefix ? `${VARIABLE_PREFIX[preprocessor]}` : '' + value;
+                    value = (stylusHash ? '' : `${VARIABLE_PREFIX[preprocessor]}`)
+                        + value;
                 }
                 return prev + value;
             }, '');
@@ -358,15 +397,31 @@ class Compiler {
         return hash.digest('hex');
     }
 
-    compile(input, preprocessor) {
-        let hash = this.hash(input, preprocessor);
-        if (this.cache[hash]) {
-            return this.cache[hash];
+    compile(input, {
+        sourcePreprocessor = 'stylus',
+        targetPreprocessor = 'stylus',
+    }) {
+        if (sourcePreprocessor === targetPreprocessor) {
+            return input;
         }
-        let tokens = this.tokenize(input, preprocessor);
+
+        let codeHash = this.hash(input, targetPreprocessor);
+        if (this.codeCache[codeHash]) {
+            return this.codeCache[codeHash];
+        }
+
+        let tokenHash = this.hash(input, sourcePreprocessor);
+        let tokens;
+        if (this.tokenCache[tokenHash]) {
+            tokens = this.tokenCache[tokenHash];
+        }
+        else {
+            tokens = this.tokenize(input, sourcePreprocessor);
+            this.tokenCache[tokenHash] = tokens;
+        }
         let ast = this.parse(tokens);
-        let code = this.generateCode(ast);
-        this.cache[hash] = code;
+        let code = this.generateCode(ast, {preprocessor: targetPreprocessor});
+        this.codeCache[codeHash] = code;
         return code;
     }
 }

@@ -1,12 +1,13 @@
 {
     "presets": [
         [
-            "env",
-            {
-                "targets": {
-                    "node": 4
-                }
-            }
-        ]
-    ]
+            "env"
+        ],
+        "stage-2"
+    ],
+    "plugins": [
+        "transform-runtime",
+        "add-module-exports"
+    ],
+    "comments": false
 }

@@ -1,5 +1,12 @@
+/**
+ * @file tokenizer.test.js
+ *
+ * @desc test case for compiler.tokenize
+ * @author panyuqi (pyqiverson@gmail.com)
+ */
+
 import test from 'ava';
-import Compiler from '../../src/compiler';
+import Compiler from '../../lib/compiler';
 
 let stylusContent;
 let preprocessor = 'stylus';

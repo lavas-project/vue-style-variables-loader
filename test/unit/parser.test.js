@@ -1,5 +1,12 @@
+/**
+ * @file parser.test.js
+ *
+ * @desc test case for compiler.parse
+ * @author panyuqi (pyqiverson@gmail.com)
+ */
+
 import test from 'ava';
-import Compiler from '../../src/compiler';
+import Compiler from '../../lib/compiler';
 // import {inspect} from 'util';
 
 let compiler = new Compiler();

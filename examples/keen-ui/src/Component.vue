@@ -20,7 +20,6 @@ export default {
 .less-selector {
     color: @theme-primary;
     height: @height;
-    background-color: @less-color;
 }
 </style>
 
