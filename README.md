@@ -4,6 +4,8 @@
 1. 在 Vue 单文件中自动引入变量文件
 2. 选用了一个 UI 框架并使用了框架提供的主题解决方案，在组件中想使用这些主题变量，但又不想使用框架指定的预处理器
 
+下面让我们分别看下这两个问题。
+
 ## 问题1：在 Vue 单文件中引入变量文件
 
 通常我们的项目中包含一个定义了常用变量的文件，以开发选择的预处理器格式存在。
@@ -172,6 +174,10 @@ npm install vue-style-variables-loader --save-dev
 两个参数：
 * `variablesFiles` 变量文件路径，Array 类型。指定主题变量文件。
 * `importStatements` import 语句，Array 类型。需要插入`.vue`文件`<style>`块头部的`@import`语句。在这里可以引入其他项目中使用的变量文件，要注意 loader 不会对这些文件做任何解析工作，只是简单的添加而已。
+
+### 参数注意事项
+
+使用`variablesFiles`时，传入的变量文件只允许包含定义变量语法。诸如 mixin，`@import`语句等都不能使用。
 
 使用`importStatements`有两点需要注意：
 1. 由于 css-loader 中认为`@import`路径是相对当前路径，所以需要加上`~`前缀使 webpack alias 生效。例如上面使用示例中：`'@import "~@/styles/other-variables.less";'`。[相关ISSUE](https://github.com/webpack-contrib/css-loader/issues/12)。

@@ -40,20 +40,30 @@ class VariablesConvertor {
     constructor(options = {}) {
         this.compiler = new Compiler();
         this.cache = {};
-        this.cacheVersion = 'default-cache-version';
+        this.cacheVersion = 0;
+    }
+
+    findByFilename(filename) {
+        let cache = this.cache[this.cacheVersion];
+        if (cache && cache.length) {
+            return cache.find(entry => entry.filename === filename);
+        }
+        return null;
     }
 
     async read(filename) {
-        this.cache[this.cacheVersion] = this.cache[this.cacheVersion] || {};
-        if (!this.cache[this.cacheVersion][filename]) {
+        // we use array as cache to keep the order of files
+        this.cache[this.cacheVersion] = this.cache[this.cacheVersion] || [];
+        if (!this.findByFilename(filename)) {
             let extname = path.extname(filename);
             let fileContent = await readFile(filename, 'utf8');
             let sourcePreprocessor = EXT_PREPROCESSOR_MAP[extname];
 
-            this.cache[this.cacheVersion][filename] = {
+            this.cache[this.cacheVersion].push({
+                filename,
                 sourcePreprocessor,
                 [sourcePreprocessor]: fileContent
-            };
+            });
         }
     }
 
@@ -93,10 +103,11 @@ class VariablesConvertor {
             let lang = regResult[1];
             let styleContent = regResult[2];
             let preprocessor = LANG_PREPROCESSOR_MAP[lang];
+            // record last index of regexp
+            lastIndex = STYLE_TAG_REG.lastIndex;
             // find position of <style>
-            let insertPos = source.indexOf(styleContent, lastIndex);
-            let variablesContent = '\n' + Object.keys(cache).map(fileName => {
-                let cacheEntry = cache[fileName];
+            let insertPos = lastIndex - styleContent.length - '</style>'.length;
+            let variablesContent = '\n' + (cache || []).map(cacheEntry => {
                 let sourcePreprocessor = cacheEntry.sourcePreprocessor;
 
                 if (cacheEntry[preprocessor]) {
@@ -120,8 +131,6 @@ class VariablesConvertor {
                 result = insertAt(result, importStatements, insertPos + offset);
                 offset += importStatements.length;
             }
-            // record last index of regexp
-            lastIndex = STYLE_TAG_REG.lastIndex;
             // update offset
             offset += variablesContent.length;
         }

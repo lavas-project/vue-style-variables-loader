@@ -7,7 +7,7 @@
 
 import test from 'ava';
 import Compiler from '../../lib/compiler';
-// import {inspect} from 'util';
+import {inspect} from 'util';
 
 let compiler = new Compiler();
 
@@ -103,8 +103,18 @@ test('it should parse stylus variables correctly', async t => {
 test('it should parse stylus hash correctly', async t => {
     let content = `
         $base-color := {
-            primary: #fff
+            primary: #fff,
             secondary: white
+        }
+
+        $base-color-2 := {
+            "primary2": #fff,
+            "secondary2": white
+        }
+
+        $shades = {
+            "black":        #000000,
+            "transparent":  transparent
         }
     `;
     let tokens = compiler.tokenize(content, 'stylus');
@@ -114,8 +124,37 @@ test('it should parse stylus hash correctly', async t => {
         && ast[0].value[0].name === 'primary'
         && ast[0].value[0].value.value[0].value === '#fff'
         && ast[0].value[1].name === 'secondary'
-        && ast[0].value[1].value.value[0].value === 'white');
+        && ast[0].value[1].value.value[0].value === 'white'
+        && ast[1].name === 'base-color-2'
+        && ast[1].value[0].name === 'primary2'
+        && ast[1].value[0].value.value[0].value === '#fff'
+        && ast[1].value[1].name === 'secondary2'
+        && ast[1].value[1].value.value[0].type === 'String'
+        && ast[1].value[1].value.value[0].value === 'white'
+        && ast[2].name === 'shades'
+        && ast[2].value[0].name === 'black'
+        && ast[2].value[0].value.value[0].value === '#000000'
+        && ast[2].value[1].name === 'transparent'
+        && ast[2].value[1].value.value[0].type === 'String'
+        && ast[2].value[1].value.value[0].value === 'transparent');
 });
+
+// test('it should parse nested stylus hash correctly', async t => {
+//     let content = `
+//         $base-color := {
+//             primary: #fff,
+//             secondary: white
+//         }
+
+//         $shades = {
+//             "black": $base-color
+//         }
+//     `;
+//     let tokens = compiler.tokenize(content, 'stylus');
+//     let ast = compiler.parse(tokens);
+
+//     console.log(inspect(ast, false, null));
+// });
 
 test('it should parse less variables correctly', async t => {
     let content = `

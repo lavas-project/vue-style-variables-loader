@@ -1,37 +1,23 @@
 <template>
     <div class="component-wrapper">
-        xxx
+        <ui-button color="primary">Primary button</ui-button>
+        <ui-button color="accent">Accent button</ui-button>
     </div>
 </template>
 
 <script>
+import 'keen-ui/src/bootstrap';
+import UiButton from 'keen-ui/src/UiButton.vue';
+
 export default {
-    name: 'component'
+    name: 'component',
+    components: {
+        UiButton
+    }
 };
 </script>
 
 <style lang="styl">
 .stylus-selector
-    color: $theme.primary
-    height: $height
-</style>
-
-<style lang="less">
-.less-selector {
-    color: @theme-primary;
-    height: @height;
-}
-</style>
-
-<style lang="scss">
-.scss-selector {
-    color: $theme-primary;
-    height: $height;
-}
-</style>
-
-<style lang="sass">
-.sass-selector
-    color: $theme-primary
-    height: $height
+    color: $brand-primary-color
 </style>

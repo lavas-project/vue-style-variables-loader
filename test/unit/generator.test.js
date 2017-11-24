@@ -35,12 +35,16 @@ test('it generate stylus hash correctly', async t => {
     let content = `
         $primary-color = #fff
         $base-color := {
-            primary: $primary-color
+            primary: $primary-color,
             secondary: white
+        }
+        $color = {
+            "white": $base-color
         }
     `;
     let tokens = compiler.tokenize(content, 'stylus');
     let ast = compiler.parse(tokens);
+    ast = compiler.transform(ast);
 
     // console.log(inspect(ast, false, null));
 
@@ -50,14 +54,21 @@ test('it generate stylus hash correctly', async t => {
 
     t.true(stylusCode === `$primary-color := #fff
 $base-color := {
-    primary : $primary-color
+    primary : $primary-color,
     secondary : white
+}
+$color := {
+    white : $base-color
 }`);
     t.true(lessCode === `@primary-color : #fff;
 @base-color-primary : @primary-color;
-@base-color-secondary : white;`);
+@base-color-secondary : white;
+@color-white-primary : @primary-color;
+@color-white-secondary : white;`);
 
     t.true(sassCode === `$primary-color : #fff;
 $base-color-primary : $primary-color;
-$base-color-secondary : white;`);
+$base-color-secondary : white;
+$color-white-primary : $primary-color;
+$color-white-secondary : white;`);
 });

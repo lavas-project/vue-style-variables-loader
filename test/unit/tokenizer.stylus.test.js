@@ -17,7 +17,7 @@ test('it should tokenize all newlines correctly', async t => {
 
     `;
 
-    t.true(compiler.tokenize(stylusContent, preprocessor).length === 2);
+    t.true(compiler.tokenize(stylusContent, preprocessor).length === 1);
 });
 
 test('it should ignore comments', async t => {
@@ -96,6 +96,18 @@ test('it should tokenize variables correctly', async t => {
         secondary: #000
     }`;
     tokens = compiler.tokenize(stylusContent, preprocessor);
+    t.true(tokens[0].value === '$theme'
+        && tokens[1].value === ':='
+        && tokens[2].type === 'HASH_START'
+        && tokens[tokens.length - 1].type === 'HASH_END');
+
+    // test stylus hash
+    stylusContent = `$theme := {
+        "primary": #000,
+        "secondary": #000
+    }`;
+    tokens = compiler.tokenize(stylusContent, preprocessor);
+
     t.true(tokens[0].value === '$theme'
         && tokens[1].value === ':='
         && tokens[2].type === 'HASH_START'

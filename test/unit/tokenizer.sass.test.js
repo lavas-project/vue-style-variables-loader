@@ -17,7 +17,7 @@ test('it should tokenize all newlines correctly', async t => {
 
     `;
 
-    t.true(compiler.tokenize(sassContent, preprocessor).length === 2);
+    t.true(compiler.tokenize(sassContent, preprocessor).length === 1);
 });
 
 test('it should ignore comments', async t => {

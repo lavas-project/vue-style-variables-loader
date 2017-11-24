@@ -35,18 +35,16 @@ module.exports = {
                 test: /\.vue$/,
                 use: [
                     {
-                        loader: 'vue-loader',
-                        options: vueLoaderConfig
-                    },
-                    {
                         loader: 'vue-style-variables-loader',
                         options: {
-                            variablesFiles: [resolve('./src/styles/variables.styl')],
-                            imports: []
+                            variablesFiles: [
+                                resolve('./src/styles/variables.scss')
+                            ]
                         }
                     }
                 ],
-                include: [resolve('src')]
+                include: [resolve('src')],
+                enforce: 'pre'
             },
             {
                 test: /\.vue$/,
@@ -54,10 +52,28 @@ module.exports = {
                     {
                         loader: 'vue-loader',
                         options: vueLoaderConfig
-                    }
+                    },
+                    // {
+                    //     loader: 'vue-style-variables-loader',
+                    //     options: {
+                    //         variablesFiles: [
+                    //             resolve('./src/styles/variables.scss')
+                    //         ]
+                    //     }
+                    // }
                 ],
-                exclude: [resolve('src')]
+                // include: [resolve('src')]
             },
+            // {
+            //     test: /\.vue$/,
+            //     use: [
+            //         {
+            //             loader: 'vue-loader',
+            //             options: vueLoaderConfig
+            //         }
+            //     ],
+            //     exclude: [resolve('src')]
+            // },
             {
                 test: /\.js$/,
                 loader: 'babel-loader',

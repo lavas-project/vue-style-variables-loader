@@ -1,8 +1,11 @@
 {
   "name": "vue-style-variables-loader",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "inject variables into every vue component based on current css preprocessor",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "module": "src/index.js",
   "scripts": {
     "build": "babel src --out-dir lib",
@@ -22,6 +25,7 @@
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
     "babel-loader": "^7.1.1",
+    "babel-plugin-add-module-exports": "^0.2.0",
     "babel-plugin-transform-runtime": "^6.22.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.3.2",
@@ -54,8 +58,8 @@
     "concurrency": 5,
     "failFast": true,
     "files": [
-      "test/unit/*.test.js",
-      "test/simple.test.js"
+      "test/simple.test.js",
+      "test/keen-ui.test.js"
     ],
     "require": [
       "babel-register"

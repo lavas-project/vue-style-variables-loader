@@ -1,5 +1,5 @@
 /**
- * @file a simple test case
+ * @file examples/keen-ui test case
  * @author panyuqi (pyqiverson@gmail.com)
  */
 
@@ -13,19 +13,19 @@ import {
     testFs
 } from './utils.js';
 
-import simpleConfig from '../examples/simple/webpack.config.js';
+import keenUiConfig from '../examples/keen-ui/webpack.config.js';
 
 const fs = testFs;
 
-const simpleExamplePath = path.resolve(__dirname, '../examples/simple');
-const webpackBuildPath = path.resolve(simpleExamplePath, './dist');
+const vuetifyExamplePath = path.resolve(__dirname, '../examples/keen-ui');
+const webpackBuildPath = path.resolve(vuetifyExamplePath, './dist');
 
 const readFile = Promise.promisify(fs.readFile, {context: fs});
 
 let webpackBuildStats = null;
 
 test.before('run webpack build first', async t => {
-    webpackBuildStats = await runWebpackCompilerMemoryFs(simpleConfig);
+    webpackBuildStats = await runWebpackCompilerMemoryFs(keenUiConfig);
 });
 
 test('it should run successfully', async t => {
@@ -34,36 +34,17 @@ test('it should run successfully', async t => {
 });
 
 test('read variables.styl and insert variables into stylus/less/scss/sass <style> blocks', async t => {
-    /**
-        // variables.styl
-        $color := blue
-        $height = 15px
-        $theme := {
-            primary: $color
-            secondary: #fff
-        }
-    */
     let cssContent = await readFile(path.join(webpackBuildPath, './static/css/app.css'), 'utf8');
-    t.true(cssContent === `
+
+    /**
+     * examples/keen-ui/src/Component.vue
+     * use sass in stylus <style> blocks
+     */
+    let stylusSelector = `
 .stylus-selector {
-  color: #00f;
-  height: 15px;
+  color: #673ab7;
 }
+`;
 
-.less-selector {
-  color: blue;
-  height: 15px;
-  background-color: #aaaaaa;
-}
-
-.scss-selector {
-  color: blue;
-  height: 15px;
-}
-
-.sass-selector {
-  color: blue;
-  height: 15px;
-}
-`);
+    t.true(cssContent.indexOf(stylusSelector) > -1);
 });

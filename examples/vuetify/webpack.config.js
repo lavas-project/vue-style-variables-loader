@@ -7,7 +7,6 @@
 
 'use strict';
 
-const webpack = require('webpack');
 const path = require('path');
 const utils = require('./utils');
 const merge = require('webpack-merge');
@@ -28,15 +27,6 @@ let webpackConfig = merge(baseWebpackConfig, {
     },
     devtool: false,
     plugins: [
-        new webpack.LoaderOptionsPlugin({
-            options: {
-                sassLoader: {
-                    data: '@import "src/styles/variables.scss";',
-                    includePaths: 'src/styles'
-                },
-                context: path.resolve(__dirname)
-            }
-        }),
 
         new ExtractTextPlugin({
             filename: utils.assetsPath('css/[name].css')

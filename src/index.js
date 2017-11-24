@@ -34,18 +34,19 @@ export default async function (source) {
     this.cacheable();
 
     const options = loaderUtils.getOptions(this);
-    const {variablesFiles, importStatements} = options;
-    
+    const {variablesFiles = [], importStatements = []} = options;
+
     // validate options according to schema
-    validateOptions(VALIDATE_OPTIONS_SCHEMA, options, 'vue-style-variables-loader');    
+    validateOptions(VALIDATE_OPTIONS_SCHEMA, options, 'vue-style-variables-loader');
 
     // use current hash of webpack compilation
+    // console.log(convertor.cacheVersion++);
+    // console.log(this.request);
     // convertor.cacheVersion = this._compilation.hash;
-
-    await Promise.all(variablesFiles.map(async (file) => {
+    for (const file of variablesFiles) {
         await convertor.read(file);
         this.addDependency(file);
-    }));
+    }
 
     return convertor.convert(source, importStatements);
 };

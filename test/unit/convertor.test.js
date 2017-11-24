@@ -60,6 +60,7 @@ test('it should convert stylus hash and insert into less block correctly', async
 <style lang="less">
 @theme-primary : white;
 @theme-secondary : #fff;
+@theme-accent : white;
 
     .selector {
         height: 15px;
@@ -88,6 +89,7 @@ test('it should convert stylus hash and insert into scss block correctly', async
 <style lang="scss">
 $theme-primary : white;
 $theme-secondary : #fff;
+$theme-accent : white;
 
     .selector {
         height: 15px;
@@ -98,7 +100,7 @@ $theme-secondary : #fff;
 });
 
 test('it should insert into multiple <style> blocks correctly', async t => {
-let convertor = new VariablesConvertor();
+    let convertor = new VariablesConvertor();
     let rawVueFileContent = `
 <template></template>
 <style lang="styl">
@@ -130,8 +132,9 @@ let convertor = new VariablesConvertor();
 <template></template>
 <style lang="styl">
 $theme := {
-    primary: white
-    secondary: #fff
+    primary: white,
+    secondary: #fff,
+    accent: white
 }
 
     .selector
@@ -142,6 +145,7 @@ $theme := {
 <style lang="scss">
 $theme-primary : white;
 $theme-secondary : #fff;
+$theme-accent : white;
 
     .selector {
         height: 15px;
@@ -152,6 +156,74 @@ $theme-secondary : #fff;
 <style lang="less">
 @theme-primary : white;
 @theme-secondary : #fff;
+@theme-accent : white;
+
+    .selector {
+        height: 15px;
+    }
+
+</style>
+`);
+});
+
+test('it should insert into multiple <style> blocks correctly', async t => {
+    let convertor = new VariablesConvertor();
+    let rawVueFileContent = `
+<template></template>
+<style lang="styl">
+
+    .selector
+        height 15px
+
+</style>
+
+<style lang="scss">
+
+    .selector {
+        height: 15px;
+    }
+
+</style>
+
+<style lang="less">
+
+    .selector {
+        height: 15px;
+    }
+
+</style>
+`;
+    await convertor.read(path.join(__dirname, '../fixture/hash.styl'));
+
+    t.true(convertor.convert(rawVueFileContent) === `
+<template></template>
+<style lang="styl">
+$theme := {
+    primary: white,
+    secondary: #fff,
+    accent: white
+}
+
+    .selector
+        height 15px
+
+</style>
+
+<style lang="scss">
+$theme-primary : white;
+$theme-secondary : #fff;
+$theme-accent : white;
+
+    .selector {
+        height: 15px;
+    }
+
+</style>
+
+<style lang="less">
+@theme-primary : white;
+@theme-secondary : #fff;
+@theme-accent : white;
 
     .selector {
         height: 15px;

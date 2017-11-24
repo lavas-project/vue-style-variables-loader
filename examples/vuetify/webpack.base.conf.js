@@ -42,11 +42,11 @@ module.exports = {
                         loader: 'vue-style-variables-loader',
                         options: {
                             variablesFiles: [
-                                resolve('./src/styles/variables.styl')
+                                resolve('../../node_modules/vuetify/src/stylus/settings/_colors.styl'),
+                                resolve('./src/styles/theme.styl')
                             ],
                             importStatements: [
-                                '@import "~@/styles/other-variables.less";',
-                                '@import "~@/styles/mixins.less";'
+                                '@import "~@/styles/other-variables.less";'
                             ]
                         }
                     }
@@ -65,8 +65,27 @@ module.exports = {
             },
             {
                 test: /\.js$/,
-                loader: 'babel-loader',
-                include: [resolve('src')]
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['vue-app'],
+                            plugins: [
+                                "transform-runtime",
+                                ["transform-imports",
+                                    {
+                                        "vuetify": {
+                                            "transform": "vuetify/es5/components/${member}",
+                                            "preventFullImport": true
+                                        }
+                                    }
+                                ]
+                            ],
+                            babelrc: false
+                        },
+                        include: [resolve('src')],
+                    }
+                ]
             }
         ]
     },
