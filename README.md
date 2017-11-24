@@ -1,5 +1,11 @@
 # vue-style-variables-loader
 
+[![npm version](https://badge.fury.io/js/vue-style-variables-loader.svg)](https://badge.fury.io/js/vue-style-variables-loader)
+[![Build Status](https://travis-ci.org/lavas-project/vue-style-variables-loader.svg?branch=master)](https://travis-ci.org/lavas-project/vue-style-variables-loader)
+
+[![NPM](https://nodei.co/npm/vue-style-variables-loader.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/vue-style-variables-loader/)
+
+
 这个基于 webpack 的 loader 试图解决使用 Vue 开发中的两个问题：
 1. 在 Vue 单文件中自动引入变量文件
 2. 选用了一个 UI 框架并使用了框架提供的主题解决方案，在组件中想使用这些主题变量，但又不想使用框架指定的预处理器
@@ -186,4 +192,3 @@ npm install vue-style-variables-loader --save-dev
 ## 参考资料
 
 [the-super-tiny-compiler](https://github.com/thejameskyle/the-super-tiny-compiler/blob/master/the-super-tiny-compiler.js)
-
