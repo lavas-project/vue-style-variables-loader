@@ -192,3 +192,4 @@ npm install vue-style-variables-loader --save-dev
 ## 参考资料
 
 [the-super-tiny-compiler](https://github.com/thejameskyle/the-super-tiny-compiler/blob/master/the-super-tiny-compiler.js)
+[vue-loader 相关 issue](https://github.com/vuejs/vue-loader/issues/328)
