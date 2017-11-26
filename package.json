@@ -62,7 +62,8 @@
       "test/keen-ui.test.js"
     ],
     "require": [
-      "babel-register"
+      "babel-register",
+      "babel-polyfill"
     ]
   },
   "author": "panyuqi",
