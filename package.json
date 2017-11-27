@@ -18,6 +18,7 @@
     "url": "git+https://github.com/lavas-project/vue-style-variables-loader.git"
   },
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "loader-utils": "^1.1.0",
     "schema-utils": "^0.3.0"
   },
